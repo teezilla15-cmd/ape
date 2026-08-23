@@ -120,20 +120,25 @@ jobs:
 
       - name: Build and push (if required) slim image
         id: build
-        uses: docker/build-push-action@v6
+        # NOTE: Retry transient Docker Hub/registry failures (e.g. 502 Bad Gateway)
+        uses: Wandalen/wretry.action@v3.8.0
         with:
-          context: .
-          file: ./Dockerfile
-          target: ${{ matrix.target }}
-          build-args: |
-            PYTHON_VERSION=${{ matrix.python-version }}
-            APE_VERSION=${{ steps.version.outputs.version }}
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=${{ env.CACHE_TRUST_PREFIX }}-build-py${{ matrix.python-version }}-${{ matrix.target }}
-          cache-to: type=gha,mode=max,scope=${{ env.CACHE_TRUST_PREFIX }}-build-py${{ matrix.python-version }}-${{ matrix.target }}
-          platforms: ${{ github.event_name != 'pull_request' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
+          action: docker/build-push-action@v6
+          attempt_limit: 3
+          attempt_delay: 10000
+          with: |
+            context: .
+            file: ./Dockerfile
+            target: ${{ matrix.target }}
+            build-args: |
+              PYTHON_VERSION=${{ matrix.python-version }}
+              APE_VERSION=${{ steps.version.outputs.version }}
+            push: ${{ github.event_name != 'pull_request' }}
+            tags: ${{ steps.meta.outputs.tags }}
+            labels: ${{ steps.meta.outputs.labels }}
+            cache-from: type=gha,scope=${{ env.CACHE_TRUST_PREFIX }}-build-py${{ matrix.python-version }}-${{ matrix.target }}
+            cache-to: type=gha,mode=max,scope=${{ env.CACHE_TRUST_PREFIX }}-build-py${{ matrix.python-version }}-${{ matrix.target }}
+            platforms: ${{ github.event_name != 'pull_request' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
 
       - name: Run container retention policy
         if: ${{ github.event_name != 'pull_request' }}
@@ -247,20 +252,25 @@ jobs:
 
       - name: Build and push image
         id: build
-        uses: docker/build-push-action@v6
+        # NOTE: Retry transient Docker Hub/registry failures (e.g. 502 Bad Gateway)
+        uses: Wandalen/wretry.action@v3.8.0
         with:
-          context: .
-          file: ./Dockerfile
-          target: ${{ matrix.target }}
-          build-args: |
-            PYTHON_VERSION=${{ matrix.python-version }}
-            APE_VERSION=${{ steps.version.outputs.version }}
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=${{ env.CACHE_TRUST_PREFIX }}-build-py${{ matrix.python-version }}-${{ matrix.target }}
-          cache-to: type=gha,mode=max,scope=${{ env.CACHE_TRUST_PREFIX }}-build-py${{ matrix.python-version }}-${{ matrix.target }}
-          platforms: linux/amd64,linux/arm64
+          action: docker/build-push-action@v6
+          attempt_limit: 3
+          attempt_delay: 10000
+          with: |
+            context: .
+            file: ./Dockerfile
+            target: ${{ matrix.target }}
+            build-args: |
+              PYTHON_VERSION=${{ matrix.python-version }}
+              APE_VERSION=${{ steps.version.outputs.version }}
+            push: true
+            tags: ${{ steps.meta.outputs.tags }}
+            labels: ${{ steps.meta.outputs.labels }}
+            cache-from: type=gha,scope=${{ env.CACHE_TRUST_PREFIX }}-build-py${{ matrix.python-version }}-${{ matrix.target }}
+            cache-to: type=gha,mode=max,scope=${{ env.CACHE_TRUST_PREFIX }}-build-py${{ matrix.python-version }}-${{ matrix.target }}
+            platforms: linux/amd64,linux/arm64
 
       - name: Run container retention policy
         # TODO: Use `v3` when available
