@@ -363,6 +363,21 @@ class ApeConfig(ExtraAttributesMixin, BaseSettings, ManagerAccessMixin):
     Extra request headers for all HTTP requests.
     """
 
+    http_proxy: str | None = None
+    """
+    An HTTP proxy URL to use for all outbound network connections, including
+    JSON-RPC calls to EVM nodes, explorer API requests, and other external
+    services. Supports ``http://``, ``https://``, and ``socks5://`` schemes.
+
+    **Example** (``ape-config.yaml``)::
+
+        http_proxy: "http://proxy.example.com:8080"
+
+    The proxy is forwarded to the underlying ``requests`` session, so standard
+    ``requests`` proxy semantics apply (``http`` proxy is also used for HTTPS
+    traffic unless an ``https`` key is provided).
+    """
+
     version: str = ""
     """
     The version of the project.

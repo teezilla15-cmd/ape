@@ -768,3 +768,27 @@ def test_isolate_data_folder_keep(config):
         config.DATA_FOLDER = original_data_folder
         if madeup_path.is_dir():
             shutil.rmtree(str(madeup_path), ignore_errors=True)
+
+
+def test_http_proxy_default_is_none(config):
+    assert config.local_project.config.http_proxy is None
+    assert config._get_request_proxies() is None
+
+
+def test_http_proxy_config(project):
+    proxy_url = "http://proxy.example.com:8080"
+    with project.temp_config(http_proxy=proxy_url):
+        assert project.config.http_proxy == proxy_url
+        proxies = project.config_manager._get_request_proxies()
+        assert proxies == {"http": proxy_url, "https": proxy_url}
+
+
+def test_get_request_proxy_returns_none_when_unset(networks):
+    assert networks.get_request_proxy() is None
+
+
+def test_get_request_proxy_returns_proxy_when_set(project, networks):
+    proxy_url = "http://proxy.example.com:8080"
+    with project.temp_config(http_proxy=proxy_url):
+        proxies = networks.get_request_proxy()
+        assert proxies == {"http": proxy_url, "https": proxy_url}

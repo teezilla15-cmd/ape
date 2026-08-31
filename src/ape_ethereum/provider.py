@@ -1665,12 +1665,16 @@ class EthereumNodeProvider(Web3Provider, ABC):
         headers = self.network_manager.get_request_headers(
             self.network.ecosystem.name, self.network.name, self.name
         )
+        request_kwargs: dict = {"headers": headers}
+        if proxies := self.network_manager.get_request_proxy():
+            request_kwargs["proxies"] = proxies
         self._web3 = _create_web3(
             http_uri=self.http_uri,
             ipc_path=self.ipc_path,
             ws_uri=self.ws_uri,
-            request_kwargs={"headers": headers},
+            request_kwargs=request_kwargs,
         )
+
 
     def _complete_connect(self):
         client_version = self.client_version.lower()

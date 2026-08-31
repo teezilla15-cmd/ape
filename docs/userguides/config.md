@@ -382,7 +382,25 @@ node:
 
 To learn more about how request headers work in Ape, see [this section of the Networking guide](./networks.html#request-headers).
 
-## Testing
+## HTTP Proxy
+
+In environments where outbound traffic must pass through a reverse-proxy or corporate
+gateway (such as [Caddy](https://caddyserver.com/), Squid, or a Tor SOCKS proxy), configure
+the proxy URL at the top level of `ape-config.yaml`:
+
+```yaml
+http_proxy: "http://proxy.example.com:8080"
+```
+
+Ape will pass the value to the underlying `requests` session used by `web3.py` and the
+explorer/dependency HTTP clients.  The proxy URL is forwarded as both the `http` and
+`https` proxy, so all outbound connections—JSON-RPC calls to Ethereum nodes, explorer
+API requests, package downloads—will be routed through it.
+
+```{note}
+The ``APE_HTTP_PROXY`` environment variable can be used instead of (or in addition to)
+the config file.
+```
 
 Configure your test accounts:
 
