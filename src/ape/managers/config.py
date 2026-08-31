@@ -171,6 +171,13 @@ class ConfigManager(ExtraAttributesMixin, BaseManager):
 
         return headers
 
+    def _get_request_proxies(self) -> dict | None:
+        """Return a ``requests``-style proxy dict, or ``None`` when not configured."""
+        proxy_url: str | None = self.local_project.config.http_proxy
+        if not proxy_url:
+            return None
+        return {"http": proxy_url, "https": proxy_url}
+
 
 def merge_configs(*cfgs: dict) -> dict:
     if len(cfgs) == 0:

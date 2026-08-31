@@ -349,6 +349,13 @@ class NetworkManager(BaseManager, ExtraAttributesMixin):
 
         return headers
 
+    def get_request_proxy(self) -> dict | None:
+        """
+        The HTTP proxy configuration to use for all outbound RPC and API
+        connections, or ``None`` when no proxy is configured.
+        """
+        return self.config_manager._get_request_proxies()
+
     def fork(
         self,
         provider_name: str | None = None,
